@@ -13,6 +13,11 @@ function Home() {
         <h1>Private besu network for cross-border payment</h1>
         <div className='container'>
             <Card 
+                title='💰 Exchange EUR to SC' 
+                descr='Exchange EUR to network&#39;s stablecoin SC'
+                onClick={() => navigate('/exchangeTokens')}
+            />
+            <Card 
                 title='💸 Transfer funds' 
                 descr='Transfer funds from an account to another using network&#39;s stablecoin'
                 onClick={() => navigate('/transferFunds')}
