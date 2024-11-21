@@ -6,7 +6,8 @@ import "./ExchangeTokens.css"
 function ExchangeTokens(){
 
     const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
-    const contractAddress = "0xa50a51c09a5c451C52BB714527E1974b686D8e77"; 
+    const contractAddress = "0x42699A7612A82f1d9C36148af9C77354759b210b"; 
+    const privateKey = "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63";
 
     const [checkAccount, setCheckAccount] = useState("");
     const [token, setToken] = useState("");
@@ -21,8 +22,17 @@ function ExchangeTokens(){
         setToken(String(formattedBalance))
     }
 
-    const handleExchange = () => {
-        setToken("# de tokens")
+    const handleExchange = async () => {
+        try{
+            const signer = new ethers.Wallet(privateKey, provider);
+            const smartContract = new ethers.Contract(contractAddress, stableCoinAbi, signer);
+            const amountInWei = ethers.parseUnits(tokensToExchange.toString(), 18);
+            const tx = await smartContract.depositAndMint(recipientAccount, amountInWei);
+            await tx.wait();
+            console.log("Tokens transferidos exitosamente");
+        } catch (error) {
+            console.error("Error al llamar a depositAndMint:", error);
+        }
     }
 
     return(
@@ -59,7 +69,7 @@ function ExchangeTokens(){
                 </div>
 
                 <div className="token-checker-section">
-                    <h2>Exchange tokens</h2>
+                    <h2>Exchange euros to SC</h2>
                     <label>Account to deposit tokens</label>
                     <input
                         type="text"
