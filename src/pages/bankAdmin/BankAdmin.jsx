@@ -71,8 +71,7 @@ function BankAdmin() {
             console.log(`Adding addresses:`)
             console.log(addrs)
             addrs.forEach(async (addr) => {
-                const tx = await bankAccounts.addAccount(publicKey, addr)
-                console.log(`Adding address | transaction successful: ${tx.hash}`)
+                const tx = await bankAccounts.addAccount(publicKey, addr, 0)
             })
         } catch (error) {
             console.error(`Error registering bank account: ${error.message}`)

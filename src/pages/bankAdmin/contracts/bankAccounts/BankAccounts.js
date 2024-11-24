@@ -85,43 +85,61 @@ class BankAccounts {
         return exists;
     }
 
-    async addAccount(publicKey64, address) {
+    async addAccount(publicKey64, address, gasMultiplier) {
         // Method to add an account to the bank node
         // addAccount(string memory publicKey, address account)
 
         // No need to sign as the contract is already signed on register call or login
 
         try {
-            console.log(`Adding account: ${address}`);
             const addressFormatted = ethers.getAddress(address);
             
-            // Get current fee data
+            // Get current gas price and increase it by 20%
             const feeData = await this.provider.getFeeData();
-            
-            // Increase gas price multiplier to 2.5x
-            const gasPrice = feeData.gasPrice * BigInt(25) / BigInt(10);
-            
-            // Set explicit transaction parameters
-            const txOptions = {
-                gasPrice: gasPrice,
-                gasLimit: 300000, // Set explicit gas limit
-            };
+            const originalGasPrice = BigInt(feeData.gasPrice.toString());
+            const gasToAdd = 20 * gasMultiplier;
+            const gasPriceIncreased = (originalGasPrice * BigInt(100 + gasToAdd)) / BigInt(100);
+            console.log(`Adding account: ${address} | Original gas price: ${originalGasPrice} | Increased gas price: ${gasPriceIncreased}`);
 
-            console.log(`Using gas price: ${ethers.formatUnits(gasPrice, 'gwei')} gwei`);
-            
+            // Estimate gas for the transaction
+            const gasEstimate = await this.contract.addAccount.estimateGas(
+                publicKey64, 
+                addressFormatted
+            );
+
+            // Send transaction with explicit gas configuration
             const tx = await this.contract.addAccount(
                 publicKey64, 
                 addressFormatted,
-                txOptions
+                {
+                    gasLimit: gasEstimate * BigInt(120) / BigInt(100), // Add 20% buffer
+                    gasPrice: gasPriceIncreased
+                }
             );
             
             // Wait for transaction confirmation
-            const receipt = await tx.wait();
-            console.log(`Transaction confirmed in block ${receipt.blockNumber}`);
-            
-            return receipt;
+            await tx.wait();
+            console.log(`Account added: ${address}`);
+            return tx;
         } catch (error) {
-            console.error(`Failed to add account: ${address}`, error);
+            // If error is not related to gas then stop trying
+            const gasErrorMessage = "replacement fee too low";
+            if (!error.message.includes(gasErrorMessage)) {
+                console.error(`Failed to add account: ${address}`, error);
+                return;
+            }
+
+            console.log(`Trying again adding account ${address} with a higher gas multiplier (${20 * (gasMultiplier + 4)}%)`);
+
+            // If gas multipier is too high then stop trying
+            if (gasMultiplier > 100) {
+                console.error(`No more retries for account: ${address} as gas multiplier is too high (${20 * gasMultiplier}%)`);
+                console.error(`Failed to add account: ${address}`, error);
+                return;
+            }
+
+            // Try again with a higher gas multiplier
+            return this.addAccount(publicKey64, address, gasMultiplier + 4);
         }
     }
 }
