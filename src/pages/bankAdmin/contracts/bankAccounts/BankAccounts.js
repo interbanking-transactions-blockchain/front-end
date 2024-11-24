@@ -91,9 +91,38 @@ class BankAccounts {
 
         // No need to sign as the contract is already signed on register call or login
 
-        console.log(`Adding account: ${address}`)
-        const tx = await this.contract.addAccount(publicKey64, address);
-        return tx;
+        try {
+            console.log(`Adding account: ${address}`);
+            const addressFormatted = ethers.getAddress(address);
+            
+            // Get current fee data
+            const feeData = await this.provider.getFeeData();
+            
+            // Increase gas price multiplier to 2.5x
+            const gasPrice = feeData.gasPrice * BigInt(25) / BigInt(10);
+            
+            // Set explicit transaction parameters
+            const txOptions = {
+                gasPrice: gasPrice,
+                gasLimit: 300000, // Set explicit gas limit
+            };
+
+            console.log(`Using gas price: ${ethers.formatUnits(gasPrice, 'gwei')} gwei`);
+            
+            const tx = await this.contract.addAccount(
+                publicKey64, 
+                addressFormatted,
+                txOptions
+            );
+            
+            // Wait for transaction confirmation
+            const receipt = await tx.wait();
+            console.log(`Transaction confirmed in block ${receipt.blockNumber}`);
+            
+            return receipt;
+        } catch (error) {
+            console.error(`Failed to add account: ${address}`, error);
+        }
     }
 }
 

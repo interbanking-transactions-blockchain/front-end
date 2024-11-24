@@ -5,7 +5,7 @@ import "./ExchangeTokens.css"
 
 function ExchangeTokens(){
 
-    const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+    const provider = new ethers.JsonRpcProvider("http://172.20.0.3:8545");
     const contractAddress = "0xe135783649BfA7c9c4c6F8E528C7f56166efC8a6"; 
     const privateKey = "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63";
 
@@ -16,10 +16,19 @@ function ExchangeTokens(){
     const [tokensToExchange, setTokensToExchange] = useState("");
 
     const handleCheck = async () => {
-        const smartContract = new ethers.Contract(contractAddress, stableCoinAbi, provider);
-        const balance = await smartContract.balanceOf(checkAccount);
-        const formattedBalance = ethers.formatUnits(balance, 18);
-        setToken(String(formattedBalance))
+        try {
+            // fe3b557e8fb62b89f4916b721be55ceb828dbd73
+            if (!ethers.isAddress(checkAccount)) {
+                throw new Error("Invalid address format");
+            }
+            const formattedCheckAccount = ethers.getAddress(checkAccount);
+            const smartContract = new ethers.Contract(contractAddress, stableCoinAbi, provider);
+            const balance = await smartContract.balanceOf(formattedCheckAccount);
+            const formattedBalance = ethers.formatUnits(balance, 18);
+            setToken(String(formattedBalance));
+        } catch (error) {
+            console.error("Error checking balance:", error);
+        }
     }
 
     const handleExchange = async () => {
