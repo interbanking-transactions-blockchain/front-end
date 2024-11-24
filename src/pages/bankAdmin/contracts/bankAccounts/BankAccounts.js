@@ -7,7 +7,7 @@ import secp256k1 from '@wangshijun/secp256k1';
 class BankAccounts {
 
     constructor() {
-        this.contractAddress = "0x9a3DBCa554e9f6b9257aAa24010DA8377C57c17e";
+        this.contractAddress = "0xfeae27388A65eE984F452f86efFEd42AaBD438FD";
         this.rpcEndpoint = "http://172.20.0.3:8545";
         this.provider = new ethers.JsonRpcProvider(this.rpcEndpoint);
         this.contract = new ethers.Contract(this.contractAddress, abi, this.provider);
