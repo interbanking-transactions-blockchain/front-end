@@ -39,6 +39,11 @@
         "internalType": "address",
         "name": "account",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "rpcEndpoint",
+        "type": "string"
       }
     ],
     "name": "addNode",
@@ -88,6 +93,24 @@
         "internalType": "string",
         "name": "enode",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "rpcEndpoint",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllAddresses",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
       }
     ],
     "stateMutability": "view",
@@ -118,6 +141,11 @@
             "internalType": "string",
             "name": "enode",
             "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "rpcEndpoint",
+            "type": "string"
           }
         ],
         "internalType": "struct BankAccounts.BankNode[]",
@@ -131,6 +159,19 @@
   {
     "inputs": [],
     "name": "getAllEnodes",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllRpcEndpoints",
     "outputs": [
       {
         "internalType": "string[]",
@@ -171,6 +212,11 @@
           {
             "internalType": "string",
             "name": "enode",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "rpcEndpoint",
             "type": "string"
           }
         ],
@@ -229,6 +275,25 @@
       }
     ],
     "name": "getNodeName",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "publicKey",
+        "type": "string"
+      }
+    ],
+    "name": "getNodeRpcEndpoint",
     "outputs": [
       {
         "internalType": "string",
@@ -363,6 +428,24 @@
       }
     ],
     "name": "updateNodePrivateKey",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "publicKey",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "rpcEndpoint",
+        "type": "string"
+      }
+    ],
+    "name": "updateNodeRpcEndpoint",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

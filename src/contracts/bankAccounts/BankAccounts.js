@@ -201,8 +201,8 @@ class BankAccounts {
         return exists
     }
 
-    async register(publicKey, enode, name, account) {
-        // addNode(string memory name, string memory publicKey, string memory enode, address account)
+    async register(publicKey, enode, name, account, rpcEndpoint) {
+        // addNode(string memory name, string memory publicKey, string memory enode, address account, string memory rpcEndpoint) 
 
         // Sign the contract with the bank account's private key
         console.log("Registering bank node, signing contract");
@@ -211,7 +211,7 @@ class BankAccounts {
 
         const addressFormatted = ethers.getAddress(account);
 
-        const tx = await this.contract.addNode(name, publicKey, enode, addressFormatted);
+        const tx = await this.contract.addNode(name, publicKey, enode, addressFormatted, rpcEndpoint);
 
         return tx;
     }

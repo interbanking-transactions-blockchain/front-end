@@ -50,7 +50,7 @@ function BankAdmin() {
         }
 
         // Register bank account
-        const tx = await bankAccounts.register(publicKey, enode, name, address, totalReserves)
+        const tx = await bankAccounts.register(publicKey, enode, name, address, totalReserves, rpcEndpoint)
         await tx.wait()
         console.log(`Transaction successful: ${tx.hash}`)
 
