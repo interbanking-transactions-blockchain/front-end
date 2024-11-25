@@ -70,34 +70,39 @@ function BankAdmin() {
     const login = async () => {
         // Get the node public key from the private key
         const publicKey64 = bankAccounts.getNodePublicKey(loginKey)
+        // Add 0x to the beginning
+        
         console.log(`Public key: ${publicKey64}`)
 
         // Attempt to login
-        try {
-            const exists = await bankAccounts.login(publicKey64, bankName)
-            if (exists) {
-                console.log("Login successful")
-                setLoginStatus(2)
-                // Sign the contract with the bank account's private key
-                bankAccounts.signContract(loginKey)
-            } else {
-                console.error("Login failed")
-                alert("Login failed. Check your bank name and private key.")
-            }
-        } catch (error) {
-            console.error(`Error logging in: ${error.message}`)
+        const exists = await bankAccounts.login(publicKey64, bankName)
+        if (exists) {
+            console.log("Login successful")
+            setLoginStatus(2)
+            // Sign the contract with the bank account's private key
+            bankAccounts.signContract(loginKey)
+        } else {
+            console.error("Login failed")
+            alert("Login failed. Check your bank name and private key.")
         }
     }
 
     const testingValues = () => {
-        setPublicKey("0x63564513fcd3f11c1de798e601c440204b4ca008c32d9398425fd9a3a4c3f864832ca58317eb4581fed95ad79d0ada2a65385a35f350b6a3e5f85cbc1c7ab799")
+        setPublicKey("63564513fcd3f11c1de798e601c440204b4ca008c32d9398425fd9a3a4c3f864832ca58317eb4581fed95ad79d0ada2a65385a35f350b6a3e5f85cbc1c7ab799")
         setEnode("enode://63564513fcd3f11c1de798e601c440204b4ca008c32d9398425fd9a3a4c3f864832ca58317eb4581fed95ad79d0ada2a65385a35f350b6a3e5f85cbc1c7ab799@172.20.0.7:30303")
         setName("Bank E")
         setAddress("0xa17150d5aefedc8446f433e9877d881fe2d86413")
-        setBankName("Bank E")
-        setLoginKey("0xa5eaf9fcc98ac6c8a02853725305f1a17d9824598fd27f40fe55ed345e11e049")
         setTotalReserves("1000000")
         setRpcEndpoint("http://172.20.0.7:8545")
+
+        // E
+        setBankName("Bank E")
+        setLoginKey("0xa5eaf9fcc98ac6c8a02853725305f1a17d9824598fd27f40fe55ed345e11e049")
+
+
+        // A
+        // setBankName("Hello Bank")
+        // setLoginKey("0xaeba9c972504a76e1953667411f54c801da24a0896a7e305aebee241b1b45243")
     }
 
     return (
