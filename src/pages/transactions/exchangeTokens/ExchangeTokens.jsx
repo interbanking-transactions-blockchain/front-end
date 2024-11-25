@@ -36,11 +36,11 @@ function ExchangeTokens(){
             const signer = new ethers.Wallet(privateKey, provider);
             const smartContract = new ethers.Contract(contractAddress, stableCoinAbi, signer);
             const amountInWei = ethers.parseUnits(tokensToExchange.toString(), 18);
-            const tx = await smartContract.depositAndMint(recipientAccount, amountInWei);
+            const tx = await smartContract.mintBank(recipientAccount, amountInWei);
             await tx.wait();
-            console.log("Tokens transferidos exitosamente");
+            console.log("Tokens canjeados exitosamente");
         } catch (error) {
-            console.error("Error al llamar a depositAndMint:", error);
+            console.error("Error al llamar a mintBank:", error);
         }
     }
 
