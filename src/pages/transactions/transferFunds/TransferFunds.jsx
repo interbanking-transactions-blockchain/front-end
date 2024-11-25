@@ -1,92 +1,106 @@
 import React from "react"
 import { useState } from "react"
-import './TransferFunds.css'
+import { ethers } from "ethers"
+import './TransferFunds.scss'
+import stableCoinAbi from "../../../abiFiles/StableCoinABI.json"
 
 function TransferFunds(){
 
-    const [inputs, setInputs] = useState({
-        fromAccount: '',
-        toAccount: '',
-        euros: ''
-    });
+    const provider = new ethers.JsonRpcProvider("http://localhost:8545");
+    const contractAddress = "0xa50a51c09a5c451C52BB714527E1974b686D8e77";
 
-    const handleChange = (event) => {
-        const name = event.target.name
-        const value = event.target.value
-        setInputs(values => ({...values, [name]: value}))
-    }
+    const [fromAccount, setFromAccount] = useState("");
+    const [toAccount, setToAccount] = useState("");
+    const [privateKeyFromAccount, setPrivateKeyFromAccount] = useState("")
+    const [amount, setAmount] = useState("");
 
-    const handleSubmit = (event) => {
-        event.preventDefault()
-        alert(JSON.stringify(inputs, null, 2))
-
-        /*
-        const data = {
-            fromAccount: inputs.fromAccount,
-            toAccount: inputs.toAccount,
-            euros: inputs.euros
-        };
-
-        // Hacer el llamado a la API usando fetch
-        fetch('https://example.com/api/transfer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data), // Convertir los datos a JSON
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Procesar la respuesta de la API
-            alert('Transfer successful: ' + data.message);
-        })
-        .catch(error => {
-            // Manejar errores
-            alert('Error: ' + error.message);
-        });
-        */
-    }
+    const handleTransfer = async () => {
+        try{
+            const wallet = new ethers.Wallet(privateKeyFromAccount, provider);
+        
+            const approved = await approveTokens(fromAccount, amount);
+            if (!approved) return;
+    
+            const smartContract = new ethers.Contract(contractAddress, stableCoinAbi, wallet);
+    
+            const tx = await smartContract.transferFrom(
+                fromAccount,
+                toAccount,
+                ethers.utils.parseUnits(amount, 18) // Ajusta a los decimales del token
+            );
+            console.log("Transacción enviada para transferFrom:", tx.hash);
+            await tx.wait(); // Esperar confirmación
+            alert("Transferencia completada con éxito!");
+        } catch (error) {
+            console.error("Error durante la transferencia: ", error);
+            alert("Ocurrio un error. Revisa la consola.")
+        }
+    };
 
     return(
-        <div className="transfer-container">
-            <h2>Transfer funds</h2>
-            <form onSubmit={handleSubmit}>
-                <label>Enter the account from which the funds will be withdrawn 
-                <input 
-                    type="text"
-                    name="fromAccount"
-                    value={inputs.fromAccount}
-                    onChange={handleChange}
-                />    
-                </label> 
-                <br />
-
-                <label>Enter the account where the funds will be deposited
-                <input 
-                    type="text"
-                    name="toAccount"
-                    value={inputs.toAccount}
-                    onChange={handleChange}
-                />    
-                </label>
-                <br />
-
-                <label>Enter the amount to transfer in EUR 
-                <input 
+        <div className="exchange-container">
+            <h2 className="title">Transfer funds</h2>
+            <div className="token-checker">
+                <div className="token-checker-section">
+                    <h2>Transfer SC to another account</h2>
+                    <label>Account to deposit tokens</label>
+                    <input
+                        type="text"
+                        value={toAccount}
+                        onChange={(e) => setToAccount(e.target.value)}
+                        placeholder="Enter recipient account"
+                    />
+                    <label>Account where the tokens would be debited</label>
+                    <input
+                        type="text"
+                        value={fromAccount}
+                        onChange={(e) => setFromAccount(e.target.value)}
+                        placeholder="Enter sender account"
+                    />
+                    <label>Put the private key of the sender account</label>
+                    <input
+                        type="text"
+                        value={privateKeyFromAccount}
+                        onChange={(e) => setPrivateKeyFromAccount(e.target.value)}
+                        placeholder="Enter private key of the sender account"
+                    />
+                    <label>Number of tokens to exchange</label>
+                    <input
                     type="number"
-                    name="euros"
-                    value={inputs.euros}
-                    onChange={handleChange}
-                />    
-                </label>
-                <br />
-
-                <button type="submit">Transfer</button>
-
-            </form>
-
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter number of SC you want to exchange"
+                    />
+                    <button onClick={handleTransfer} className="token-checker-button">
+                        Transfer
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
+
+async function approveTokens(spender, amount) {
+    try {
+        const wallet = new ethers.Wallet(privateKeyFromAccount, provider);
+        const smartContract = new ethers.Contract(contractAddress, erc20Abi, wallet);
+
+        console.log("Aprobando tokens...");
+        const tx = await smartContract.approve(
+            spender, 
+            ethers.utils.parseUnits(amount, 18) // Ajusta a los decimales del token
+        );
+
+        console.log("Transacción enviada para approve:", tx.hash);
+        await tx.wait(); // Esperar confirmación
+        console.log("Tokens aprobados exitosamente");
+        return true;
+    } catch (error) {
+        console.error("Error al aprobar tokens:", error);
+        alert("Error durante la aprobación. Revisa la consola.");
+        return false;
+    }
+}
+
 
 export default TransferFunds
