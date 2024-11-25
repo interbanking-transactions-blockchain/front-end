@@ -17,6 +17,7 @@ function BankAdmin() {
     const [name, setName] = useState("")
     const [address, setAddress] = useState("")
     const [accountPrivateKey32, setAccountPrivateKey32] = useState("")
+    const [totalReserves, setTotalReserves] = useState("")
 
     // Login form fields
     const [loginKey, setLoginKey] = useState("") // Private key for login
@@ -194,11 +195,19 @@ function BankAdmin() {
 
                         <br />
                         <div className="bank-addresses">Enter your bank account public address</div>
-                        <br />
                         <input
                             type="text"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
+                            className="text-input-short"
+                        />
+
+                        <br />
+                        <div className="bank-addresses">Enter your bank total reserves in EUR FIAT</div>
+                        <input
+                            type="text"
+                            value={totalReserves}
+                            onChange={(e) => setTotalReserves(e.target.value)}
                             className="text-input-short"
                         />
 
