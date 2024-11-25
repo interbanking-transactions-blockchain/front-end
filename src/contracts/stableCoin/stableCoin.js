@@ -36,8 +36,8 @@ class StableCoin {
     async mintBank (account, amount) {
         try {
             // mintBank(address account, uint256 amount)
-            const addressFormatted = ethers.utils.getAddress(account);
-            const amountFormatted = ethers.utils.parseUnits(amount.toString(), 18);
+            const addressFormatted = ethers.getAddress(account);
+            const amountFormatted = ethers.parseUnits(amount.toString(), 18);
             console.log(`Minting ${amount} to ${account}`);
 
             this.signContract(this.adminAccount);

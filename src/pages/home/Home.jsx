@@ -19,6 +19,7 @@ function BankAdmin() {
     const [name, setName] = useState("")
     const [address, setAddress] = useState("")
     const [totalReserves, setTotalReserves] = useState("")
+    const [rpcEndpoint, setRpcEndpoint] = useState("")
 
     // Login form fields
     const [loginKey, setLoginKey] = useState("") // Private key for login
@@ -27,7 +28,7 @@ function BankAdmin() {
     // Register function
     const register = async () => {
         // Check for empty fields
-        if (publicKey === "" || enode === "" || name === "" || address === "" || totalReserves === "") {
+        if (publicKey === "" || enode === "" || name === "" || address === "" || totalReserves === "" || rpcEndpoint === "") {
             console.error("Empty fields")
             alert("Please fill all fields")
             return
@@ -60,6 +61,9 @@ function BankAdmin() {
 
         // Set login status to logged in
         setLoginStatus(2)
+
+        // Add to allowlists in the background
+        a//wait bankAccounts.addAllowlists(enode, address, rpcEndpoint)
     }
 
     // Login function
@@ -93,6 +97,7 @@ function BankAdmin() {
         setBankName("Hello Bank")
         setLoginKey("0xaeba9c972504a76e1953667411f54c801da24a0896a7e305aebee241b1b45243")
         setTotalReserves("1000000")
+        setRpcEndpoint("http://172.20.0.7:8545")
     }
 
     return (
@@ -192,6 +197,15 @@ function BankAdmin() {
                             type="text"
                             value={totalReserves}
                             onChange={(e) => setTotalReserves(e.target.value)}
+                            className="text-input-short"
+                        />
+
+                        <br />
+                        <div className="bank-addresses">Enter your bank node RPC endpoint</div>
+                        <input
+                            type="text"
+                            value={rpcEndpoint}
+                            onChange={(e) => setRpcEndpoint(e.target.value)}
                             className="text-input-short"
                         />
 

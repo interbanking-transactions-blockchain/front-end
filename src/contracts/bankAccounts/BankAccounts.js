@@ -50,6 +50,120 @@ class BankAccounts {
         this.signed = true;
     }
 
+    async addAllowlists(enode, address, rpcEndpoint) {
+        try {
+            // RPC call to all enodes to add the new enode and address to their allowlist
+
+            // Example: curl -X POST --data '{"jsonrpc":"2.0","method":"perm_addAccountsToAllowlist","params":[["0xb9b81ee349c3807e46bc71aa2632203c5b462032", "0xb9b81ee349c3807e46bc71aa2632203c5b462034"]], "id":1}' http://127.0.0.1:8545
+
+            // Example: curl -X POST --data '{"jsonrpc":"2.0","method":"perm_addNodesToAllowlist","params":[["enode://7e4ef30e9ec683f26ad76ffca5b5148fa7a6575f4cfad4eb0f52f9c3d8335f4a9b6f9e66fcc73ef95ed7a2a52784d4f372e7750ac8ae0b544309a5b391a23dd7@127.0.0.1:30303","enode://2feb33b3c6c4a8f77d84a5ce44954e83e5f163e7a65f7f7a7fec499ceb0ddd76a46ef635408c513d64c076470eac86b7f2c8ae4fcd112cb28ce82c0d64ec2c94@127.0.0.1:30304"]], "id":1}' http://127.0.0.1:8545
+
+            // 1. Get all enodes, RPC endpoints and addresses
+            const enodes = await this.getEnodes();
+            const rpcEndpoints = await this.getRPCEndpoints();
+            const addresses = await this.getAllAddresses();
+
+            // 2. Add the enodes of the already existing nodes to the allowlist of this new node
+            const response = await fetch(rpcEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'perm_addNodesToAllowlist',
+                    params: [enodes], // Pass array of enodes as parameter
+                    id: 1
+                })
+            });
+
+            const data = await response.json();
+            console.log("Adding enodes to allowlist:");
+            console.log(data);
+
+            // 3. Add the accounts of the already existing nodes to the allowlist of this new node
+            const responseAccounts = await fetch(rpcEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'perm_addAccountsToAllowlist',
+                    params: [addresses], // Pass array of addresses as parameter
+                    id: 1
+                })
+            });
+
+            const dataAccounts = await responseAccounts.json();
+            console.log("Adding accounts to allowlist:");
+            console.log(dataAccounts);
+
+            // 4.1. RPC petition for a list with only the new enode
+            // const newEnodeList = [enode];
+            
+            // for (const rpc of rpcEndpoints) {
+            //     const responseNewEnode = await fetch(rpc, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //         },
+            //         body: JSON.stringify({
+            //             jsonrpc: '2.0',
+            //             method: 'perm_addNodesToAllowlist',
+            //             params: [newEnodeList], // Pass array with only the new enode as parameter
+            //             id: 1
+            //         })
+            //     });
+
+            //     const dataNewEnode = await responseNewEnode.json();
+            //     console.log("Adding new enode to allowlist:");
+            //     console.log(dataNewEnode);
+            // }
+
+            // const dataNewEnode = await responseNewEnode.json();
+            // console.log("Adding new enode to allowlist:");
+            // console.log(dataNewEnode);
+
+            // 4.2. RPC petition for a list with only the new address
+            // const newAddressList = [address];
+
+            // for (const rpc of rpcEndpoints) {
+            //     const responseNewAddress = await fetch(rpc, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //         },
+            //         body: JSON.stringify({
+            //             jsonrpc: '2.0',
+            //             method: 'perm_addAccountsToAllowlist',
+            //             params: [newAddressList], // Pass array with only the new address as parameter
+            //             id: 1
+            //         })
+            //     });
+
+            //     const dataNewAddress = await responseNewAddress.json();
+            //     console.log("Adding new address to allowlist:");
+            //     console.log(dataNewAddress);
+            // }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async getAllAddresses() {
+        try {
+            // getAllAddresses() public view returns (address[] memory)
+            const addresses = await this.contract.getAllAddresses();
+            console.log("Getting addresses:");
+            console.log(addresses);
+            return addresses;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     async getEnodes() {
         // Method to get all bank nodes enodes
         // getAllEnodes() public view returns (string[] memory)
@@ -57,6 +171,18 @@ class BankAccounts {
         console.log("Getting enodes:");
         console.log(enodes);
         return enodes;
+    }
+
+    async getRPCEndpoints() {
+        try {
+            // getAllRpcEndpoints() public view returns (string[] memory)
+            const rpcEndpoints = await this.contract.getAllRpcEndpoints();
+            console.log("Getting RPC endpoints:");
+            console.log(rpcEndpoints);
+            return rpcEndpoints;
+        } catch (error) {
+            console.log(error);
+        }
     }
     
     async nodeExists(publicKey) {
@@ -86,9 +212,6 @@ class BankAccounts {
         const addressFormatted = ethers.getAddress(account);
 
         const tx = await this.contract.addNode(name, publicKey, enode, addressFormatted);
-
-        // Add the bank enode to the list of enodes of all other banks
-        const enodes = await this.getEnodes();
 
         return tx;
     }
