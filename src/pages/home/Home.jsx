@@ -50,7 +50,7 @@ function BankAdmin() {
         }
 
         // Register bank account
-        const tx = await bankAccounts.register(publicKey, enode, name, address, totalReserves, rpcEndpoint)
+        const tx = await bankAccounts.register(publicKey, enode, name, address, rpcEndpoint)
         await tx.wait()
         console.log(`Transaction successful: ${tx.hash}`)
 
@@ -63,7 +63,7 @@ function BankAdmin() {
         setLoginStatus(2)
 
         // Add to allowlists in the background
-        a//wait bankAccounts.addAllowlists(enode, address, rpcEndpoint)
+        await bankAccounts.addAllowlists(enode, address, rpcEndpoint)
     }
 
     // Login function
@@ -90,12 +90,12 @@ function BankAdmin() {
     }
 
     const testingValues = () => {
-        setPublicKey("0x69e84b9c135d789b637ba454fdcf7c348b3fcee0713e248c1e3edcc652088563ae5a4fd0698f7f796b875bd8008c9197022e7c15c3680e8b7cb7ec68f8b33dfa")
-        setEnode("enode://69e84b9c135d789b637ba454fdcf7c348b3fcee0713e248c1e3edcc652088563ae5a4fd0698f7f796b875bd8008c9197022e7c15c3680e8b7cb7ec68f8b33dfa@172.20.0.3:30303")
-        setName("Hello Bank")
-        setAddress("627306090abaB3A6e1400e9345bC60c78a8BEf57")
-        setBankName("Hello Bank")
-        setLoginKey("0xaeba9c972504a76e1953667411f54c801da24a0896a7e305aebee241b1b45243")
+        setPublicKey("0x63564513fcd3f11c1de798e601c440204b4ca008c32d9398425fd9a3a4c3f864832ca58317eb4581fed95ad79d0ada2a65385a35f350b6a3e5f85cbc1c7ab799")
+        setEnode("enode://63564513fcd3f11c1de798e601c440204b4ca008c32d9398425fd9a3a4c3f864832ca58317eb4581fed95ad79d0ada2a65385a35f350b6a3e5f85cbc1c7ab799@172.20.0.7:30303")
+        setName("Bank E")
+        setAddress("0xa17150d5aefedc8446f433e9877d881fe2d86413")
+        setBankName("Bank E")
+        setLoginKey("0xa5eaf9fcc98ac6c8a02853725305f1a17d9824598fd27f40fe55ed345e11e049")
         setTotalReserves("1000000")
         setRpcEndpoint("http://172.20.0.7:8545")
     }

@@ -12,7 +12,8 @@ class BankAccounts {
         this.provider = new ethers.JsonRpcProvider(this.rpcEndpoint);
         this.contract = new ethers.Contract(this.contractAddress, abi, this.provider);
         this.signed = false;
-        
+        this.bootnodes = ["enode://69e84b9c135d789b637ba454fdcf7c348b3fcee0713e248c1e3edcc652088563ae5a4fd0698f7f796b875bd8008c9197022e7c15c3680e8b7cb7ec68f8b33dfa@172.20.0.3:30303","enode://18808d740470a14ca76548ca37643e69806f562b36453c4f72e36bc9f73e01bce9de5e924f4fd3a2540f748bd9afe198f9076ee9eebc200bb70e928d6cf43d20@172.20.0.4:30303"]
+
         // The admin account private key should go on env, to facilitate the test of the application we are hardcoding it
         this.adminAccount = "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63"
     }
@@ -50,21 +51,35 @@ class BankAccounts {
         this.signed = true;
     }
 
-    async addAllowlists(enode, address, rpcEndpoint) {
+    async getNode(nodePublicKey) {
         try {
-            // RPC call to all enodes to add the new enode and address to their allowlist
+            // getNode(string memory publicKey) public view returns (BankNode memory)
+            const node = await this.contract.getNode(nodePublicKey);
+            console.log("Getting node:");
+            console.log(node);
+            return node;
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
-            // Example: curl -X POST --data '{"jsonrpc":"2.0","method":"perm_addAccountsToAllowlist","params":[["0xb9b81ee349c3807e46bc71aa2632203c5b462032", "0xb9b81ee349c3807e46bc71aa2632203c5b462034"]], "id":1}' http://127.0.0.1:8545
+    async getAllNodes () {
+        try {
+            // getAllBankNodes() public view returns (BankNode[] memory)
+            const nodes = await this.contract.getAllBankNodes();
+            console.log("Getting all nodes:");
+            console.log(nodes);
+            return nodes;
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
-            // Example: curl -X POST --data '{"jsonrpc":"2.0","method":"perm_addNodesToAllowlist","params":[["enode://7e4ef30e9ec683f26ad76ffca5b5148fa7a6575f4cfad4eb0f52f9c3d8335f4a9b6f9e66fcc73ef95ed7a2a52784d4f372e7750ac8ae0b544309a5b391a23dd7@127.0.0.1:30303","enode://2feb33b3c6c4a8f77d84a5ce44954e83e5f163e7a65f7f7a7fec499ceb0ddd76a46ef635408c513d64c076470eac86b7f2c8ae4fcd112cb28ce82c0d64ec2c94@127.0.0.1:30304"]], "id":1}' http://127.0.0.1:8545
-
-            // 1. Get all enodes, RPC endpoints and addresses
-            const enodes = await this.getEnodes();
-            const rpcEndpoints = await this.getRPCEndpoints();
-            const addresses = await this.getAllAddresses();
-
-            // 2. Add the enodes of the already existing nodes to the allowlist of this new node
-            const response = await fetch(rpcEndpoint, {
+    async addNodesAllowlist(enodes, rpcEndpointTarget) {
+        try {
+            console.log("Adding nodes to allowlist:"); 
+            console.log(enodes);
+            const response = await fetch(rpcEndpointTarget, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -76,13 +91,19 @@ class BankAccounts {
                     id: 1
                 })
             });
-
             const data = await response.json();
             console.log("Adding enodes to allowlist:");
             console.log(data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
-            // 3. Add the accounts of the already existing nodes to the allowlist of this new node
-            const responseAccounts = await fetch(rpcEndpoint, {
+    async addAccountsToAllowlist(addresses, rpcEndpointTarget) {
+        try {
+            console.log("Adding accounts to allowlist:");
+            console.log(addresses);
+            const response = await fetch(rpcEndpointTarget, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -90,96 +111,74 @@ class BankAccounts {
                 body: JSON.stringify({
                     jsonrpc: '2.0',
                     method: 'perm_addAccountsToAllowlist',
-                    params: [addresses], // Pass array of addresses as parameter
+                    params: [addresses], // Pass array with only the address as parameter
                     id: 1
                 })
             });
+            const data = await response.json();
+            console.log("Adding account to allowlist:");
+            console.log(data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
-            const dataAccounts = await responseAccounts.json();
-            console.log("Adding accounts to allowlist:");
-            console.log(dataAccounts);
+    async addAllowlists(enode, address, rpcEndpoint) {
+        try {
+            // RPC call to all enodes to add the new enode and address to their allowlist
 
-            // 4.1. RPC petition for a list with only the new enode
-            // const newEnodeList = [enode];
+            // 1. Get all enodes, RPC endpoints and addresses
+
+            const nodes = await this.getAllNodes();
             
-            // for (const rpc of rpcEndpoints) {
-            //     const responseNewEnode = await fetch(rpc, {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify({
-            //             jsonrpc: '2.0',
-            //             method: 'perm_addNodesToAllowlist',
-            //             params: [newEnodeList], // Pass array with only the new enode as parameter
-            //             id: 1
-            //         })
-            //     });
+            const enodes = nodes.map(node => node.enode);
+            const addresses = nodes.map(node => node.account);
+            const rpcEndpoints = nodes.map(node => node.rpcEndpoint);
 
-            //     const dataNewEnode = await responseNewEnode.json();
-            //     console.log("Adding new enode to allowlist:");
-            //     console.log(dataNewEnode);
-            // }
+            // Remove duplicates in accounts, rpcEndpoints, and enodes
+            const uniqueEnodes = [...new Set(enodes)];
+            const uniqueAddresses = [...new Set(addresses)];
+            const uniqueRpcEndpoints = [...new Set(rpcEndpoints)];
 
-            // const dataNewEnode = await responseNewEnode.json();
-            // console.log("Adding new enode to allowlist:");
-            // console.log(dataNewEnode);
+            // Remove bootnodes if present from enodes
+            for (const bootnode of this.bootnodes) {
+                const index = uniqueEnodes.indexOf(bootnode);
+                if (index > -1) {
+                    uniqueEnodes.splice(index, 1);
+                }
+            }
 
-            // 4.2. RPC petition for a list with only the new address
-            // const newAddressList = [address];
+            // Remove the address of the new node
+            const index = addresses.indexOf(address);
+            if (index > -1) {
+                uniqueAddresses.splice(index, 1);
+            }
 
-            // for (const rpc of rpcEndpoints) {
-            //     const responseNewAddress = await fetch(rpc, {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify({
-            //             jsonrpc: '2.0',
-            //             method: 'perm_addAccountsToAllowlist',
-            //             params: [newAddressList], // Pass array with only the new address as parameter
-            //             id: 1
-            //         })
-            //     });
+            // Remove the rpcEndpoint of the new node
+            const indexRpc = rpcEndpoints.indexOf(rpcEndpoint);
+            if (indexRpc > -1) {
+                uniqueRpcEndpoints.splice(indexRpc, 1);
+            }
 
-            //     const dataNewAddress = await responseNewAddress.json();
-            //     console.log("Adding new address to allowlist:");
-            //     console.log(dataNewAddress);
-            // }
+            console.log("Enodes:");
+            console.log(uniqueEnodes);
+            console.log("Addresses:");
+            console.log(uniqueAddresses);
+            console.log("RPC Endpoints:");
+            console.log(uniqueRpcEndpoints);
 
-        } catch (error) {
-            console.log(error);
-        }
-    }
+            // 2. Add the enodes of the already existing nodes to the allowlist of this new node
+            await this.addNodesAllowlist(uniqueEnodes, rpcEndpoint);
 
-    async getAllAddresses() {
-        try {
-            // getAllAddresses() public view returns (address[] memory)
-            const addresses = await this.contract.getAllAddresses();
-            console.log("Getting addresses:");
-            console.log(addresses);
-            return addresses;
-        } catch (error) {
-            console.log(error);
-        }
-    }
+            // 3. Add the accounts of the already existing nodes to the allowlist of this new node
+            await this.addAccountsToAllowlist(uniqueAddresses, rpcEndpoint);
 
-    async getEnodes() {
-        // Method to get all bank nodes enodes
-        // getAllEnodes() public view returns (string[] memory)
-        const enodes = await this.contract.getAllEnodes();
-        console.log("Getting enodes:");
-        console.log(enodes);
-        return enodes;
-    }
+            // 4. RPC petition to add the new enode and address to the allowlist of the already existing nodes
+            for (const rpc of uniqueRpcEndpoints) {
+                await this.addNodesAllowlist([enode], rpc);
+                await this.addAccountsToAllowlist([address], rpc);
+            }
 
-    async getRPCEndpoints() {
-        try {
-            // getAllRpcEndpoints() public view returns (string[] memory)
-            const rpcEndpoints = await this.contract.getAllRpcEndpoints();
-            console.log("Getting RPC endpoints:");
-            console.log(rpcEndpoints);
-            return rpcEndpoints;
         } catch (error) {
             console.log(error);
         }
