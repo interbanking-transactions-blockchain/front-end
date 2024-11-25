@@ -8,15 +8,18 @@
     width: 100vw;
 
     .header {
-        flex: 0.4;
-        margin-top: 10vh;
-        margin-bottom: 10vh;
+        flex: 0.2;
+        margin-top: 2.5vh;
+        margin-bottom: 2.5vh;
+        width: 50vw;
+        
+        text-align: center;
     }
 
     .body {
-        flex: 0.6;
+        flex: 0.8;
 
-        * {
+        .login, .logged-in, .register {
             display: flex;
             justify-content: center;
             align-items: center;

@@ -48,8 +48,8 @@ function TransferFunds(){
     }
 
     return(
-        <div>
-            <h1>Transfer funds</h1>
+        <div className="transfer-container">
+            <h2>Transfer funds</h2>
             <form onSubmit={handleSubmit}>
                 <label>Enter the account from which the funds will be withdrawn 
                 <input 

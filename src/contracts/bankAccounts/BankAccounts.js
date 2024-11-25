@@ -7,7 +7,7 @@ import secp256k1 from '@wangshijun/secp256k1';
 class BankAccounts {
 
     constructor() {
-        this.contractAddress = "0xfeae27388A65eE984F452f86efFEd42AaBD438FD";
+        this.contractAddress = "0x42699A7612A82f1d9C36148af9C77354759b210b";
         this.rpcEndpoint = "http://172.20.0.3:8545";
         this.provider = new ethers.JsonRpcProvider(this.rpcEndpoint);
         this.contract = new ethers.Contract(this.contractAddress, abi, this.provider);
@@ -99,7 +99,10 @@ class BankAccounts {
             const originalGasPrice = BigInt(feeData.gasPrice.toString());
             const gasToAdd = 20 * gasMultiplier;
             const gasPriceIncreased = (originalGasPrice * BigInt(100 + gasToAdd)) / BigInt(100);
-            console.log(`Adding account: ${address} | Original gas price: ${originalGasPrice} | Increased gas price: ${gasPriceIncreased}`);
+
+            if (gasMultiplier > 0) {
+                console.log(`Adding account: ${address} | Original gas price: ${originalGasPrice} | Trying with gas price: ${gasPriceIncreased}`);
+            }
 
             // Estimate gas for the transaction
             const gasEstimate = await this.contract.addAccount.estimateGas(
@@ -108,14 +111,20 @@ class BankAccounts {
             );
 
             // Send transaction with explicit gas configuration
-            const tx = await this.contract.addAccount(
-                publicKey64, 
-                addressFormatted,
-                {
-                    gasLimit: gasEstimate * BigInt(120) / BigInt(100), // Add 20% buffer
-                    gasPrice: gasPriceIncreased
-                }
-            );
+            var tx;
+
+            if (gasMultiplier === 0) {
+                tx = await this.contract.addAccount(publicKey64, addressFormatted);
+            } else {
+                tx = await this.contract.addAccount(
+                    publicKey64, 
+                    addressFormatted,
+                    {
+                        gasLimit: gasEstimate * BigInt(120) / BigInt(100), // Add 20% buffer
+                        gasPrice: gasPriceIncreased
+                    }
+                );
+            }
             
             // Wait for transaction confirmation
             await tx.wait();

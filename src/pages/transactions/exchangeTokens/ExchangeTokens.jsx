@@ -1,12 +1,12 @@
 import React, { useState } from "react"
 import { ethers } from "ethers"
-import stableCoinAbi from "../../abiFiles/StableCoinABI.json"
-import "./ExchangeTokens.css"
+import stableCoinAbi from "../../../abiFiles/StableCoinABI.json"
+import "./ExchangeTokens.scss"
 
 function ExchangeTokens(){
 
     const provider = new ethers.JsonRpcProvider("http://172.20.0.3:8545");
-    const contractAddress = "0xe135783649BfA7c9c4c6F8E528C7f56166efC8a6"; 
+    const contractAddress = "0xa50a51c09a5c451C52BB714527E1974b686D8e77"; 
     const privateKey = "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63";
 
     const [checkAccount, setCheckAccount] = useState("");
@@ -45,11 +45,11 @@ function ExchangeTokens(){
     }
 
     return(
-        <div>
-            <h1>Exchange tokens</h1>
+        <div className="exchange-container">
+            <h2 className="title">Exchange tokens</h2>
             <div className="token-checker">
                 <div className="token-checker-section">
-                    <h2>Check account balance</h2>
+                    <h4>Check account balance</h4>
                     <label>Enter an account to check their SC balance</label>
                     <input
                         type="text"

@@ -1,3 +1,7 @@
+.transfer-container {
+    padding-bottom: 20vh;
+}
+
 /* Form container */
 form {
     display: flex;

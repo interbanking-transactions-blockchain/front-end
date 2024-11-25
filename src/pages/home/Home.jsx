@@ -1,6 +1,8 @@
 import React, { useState } from "react"
-import BankAccounts from "./contracts/bankAccounts/BankAccounts"
-import "./BankAdmin.scss"
+import BankAccounts from "../../contracts/bankAccounts/BankAccounts"
+import "./Home.scss"
+
+import Admin from "../admin/Admin"
 
 function BankAdmin() {
 
@@ -13,7 +15,7 @@ function BankAdmin() {
     const [publicKey, setPublicKey] = useState("")
     const [enode, setEnode] = useState("")
     const [name, setName] = useState("")
-    const [addresses, setAddresses] = useState("")
+    const [address, setAddress] = useState("")
     const [accountPrivateKey32, setAccountPrivateKey32] = useState("")
 
     // Login form fields
@@ -27,55 +29,42 @@ function BankAdmin() {
         setLoginKey(loginKey.replace("0x", ""))
 
         // Remove 0x from all addresses
-        const addrs = addresses.split(",")
-        let newAddrs = ""
-        addrs.forEach((addr) => {
-            newAddrs += addr.replace("0x", "") + ","
-        })
-        setAddresses(newAddrs)
+        setAddress(address.replace("0x", ""))
     }
 
     // Register function
     const register = async () => {
-        try {
-            remove0x()
-            // Check for empty fields
-            if (publicKey === "" || enode === "" || name === "" || accountPrivateKey32 === "") {
-                console.error("Empty fields")
-                alert("Please fill all fields")
-                return
-            }
-            // First, check existance
-            const exists = await bankAccounts.nodeExists(publicKey)
-            if (exists) {
-                console.error("Bank account already exists")
-                alert("Bank node already exists. Try again with a different node public key or login.")
-                return
-            }
-
-            // Second, check that account existance
-            const accountExists = await bankAccounts.nodeExists(accountPrivateKey32)
-            if (accountExists) {
-                console.error("Bank account already exists")
-                alert("Bank account already exists. Try again with a different account private key or login.")
-                return
-            }
-
-            // Register bank account
-            const tx = await bankAccounts.register(publicKey, enode, name, accountPrivateKey32)
-            console.log(`Transaction successful: ${tx.hash}`)
-            setLoginStatus(2)
-            
-            // Add addresses in the background
-            const addrs = addresses.split(",")
-            console.log(`Adding addresses:`)
-            console.log(addrs)
-            addrs.forEach(async (addr) => {
-                const tx = await bankAccounts.addAccount(publicKey, addr, 0)
-            })
-        } catch (error) {
-            console.error(`Error registering bank account: ${error.message}`)
+        remove0x()
+        // Check for empty fields
+        if (publicKey === "" || enode === "" || name === "" || accountPrivateKey32 === "") {
+            console.error("Empty fields")
+            alert("Please fill all fields")
+            return
         }
+        // First, check existance
+        const exists = await bankAccounts.nodeExists(publicKey)
+        if (exists) {
+            console.error("Bank account already exists")
+            alert("Bank node already exists. Try again with a different node public key or login.")
+            return
+        }
+
+        // Second, check that account existance
+        const accountExists = await bankAccounts.nodeExists(accountPrivateKey32)
+        if (accountExists) {
+            console.error("Bank account already exists")
+            alert("Bank account already exists. Try again with a different account private key or login.")
+            return
+        }
+
+        // Register bank account
+        const tx = await bankAccounts.register(publicKey, enode, name, accountPrivateKey32)
+        console.log(`Transaction successful: ${tx.hash}`)
+        setLoginStatus(2)
+        
+        // Add addresses in the background
+        console.log(`Adding address: ${address}`)
+        await bankAccounts.addAccount(publicKey, address, 0)
     }
 
     // Login function
@@ -106,7 +95,7 @@ function BankAdmin() {
         setPublicKey("0x69e84b9c135d789b637ba454fdcf7c348b3fcee0713e248c1e3edcc652088563ae5a4fd0698f7f796b875bd8008c9197022e7c15c3680e8b7cb7ec68f8b33dfa")
         setEnode("enode://69e84b9c135d789b637ba454fdcf7c348b3fcee0713e248c1e3edcc652088563ae5a4fd0698f7f796b875bd8008c9197022e7c15c3680e8b7cb7ec68f8b33dfa@172.20.0.3:30303")
         setName("Hello Bank")
-        setAddresses("fe3b557e8fb62b89f4916b721be55ceb828dbd73,627306090abaB3A6e1400e9345bC60c78a8BEf57,f17f52151EbEF6C7334FAD080c5704D77216b732")
+        setAddress("627306090abaB3A6e1400e9345bC60c78a8BEf57")
         setAccountPrivateKey32("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63")
         setBankName("Hello Bank")
         setLoginKey("0xaeba9c972504a76e1953667411f54c801da24a0896a7e305aebee241b1b45243")
@@ -116,7 +105,7 @@ function BankAdmin() {
         <div className="admin">
 
             <div className="header">
-                <h1>Interbanking blockchain demo</h1>
+                <h1>Private besu network for cross-border payment</h1>
             </div>
 
             <div className="body">
@@ -159,7 +148,7 @@ function BankAdmin() {
                 )}
                 {loginStatus === 2 && (
                     <div className="logged-in">
-                        <h4>Welcome, you are logged in! Your public key is {publicKey}</h4>
+                        <Admin />
                     </div>
                 )}
                 {loginStatus === 3 && (
@@ -194,7 +183,6 @@ function BankAdmin() {
                         />
 
                         <br />
-
                         <div className="bank-enode">Enter your bank enode URL</div>
                         <br />
                         <input
@@ -205,13 +193,13 @@ function BankAdmin() {
                         />
 
                         <br />
-
-                        <div className="bank-addresses">Enter your bank account public addresses separeted by "," (optional)</div>
-
-                        <textarea
-                            value={addresses}
-                            onChange={(e) => setAddresses(e.target.value)}
-                            className="text-input-long"
+                        <div className="bank-addresses">Enter your bank account public address</div>
+                        <br />
+                        <input
+                            type="text"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            className="text-input-short"
                         />
 
                         <br />
