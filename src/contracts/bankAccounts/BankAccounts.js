@@ -204,6 +204,9 @@ class BankAccounts {
         // addNode(string memory name, string memory publicKey, string memory enode, address account, string memory rpcEndpoint) 
 
         // Sign the contract with the bank account's private key
+        
+        // Remove the 0x prefix if present
+        publicKey = publicKey.replace('0x', '');
         console.log("Registering bank node, signing contract");
         this.signContract(this.adminAccount);
         console.log("Contract signed");
@@ -219,10 +222,19 @@ class BankAccounts {
         // Method to login to an existing bank account
         // nodeExistsByName(string memory publicKey, string memory name)
 
-        console.log(`Logging in to bank account: ${publicKey64}, ${bankName}`)
-        const exists = await this.contract.nodeExistsByName(publicKey64, bankName);
-        console.log(`Bank account exists: ${exists}`)
-        return exists;
+        try {
+            // Remove the 0x prefix if present
+            publicKey64 = publicKey64.replace('0x', '');
+            this.getAllNodes();
+            console.log(`Logging in to bank account: ${publicKey64}, ${bankName}`)
+            // const exists = await this.contract.nodeExistsByName(publicKey64, bankName);
+            const exists = await this.contract.nodeExists(publicKey64);
+            console.log(`Bank node exists: ${exists}`)
+            return exists;
+        } catch (error) {
+            console.error(`Failed to login to bank account: ${publicKey64}, ${bankName}`, error);
+            return false;
+        }
     }
 
     async addAccount(publicKey64, address, gasMultiplier) {
