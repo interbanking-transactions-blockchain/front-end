@@ -59,13 +59,9 @@ function BankAdmin() {
         }
 
         // Register bank account
-        const tx = await bankAccounts.register(publicKey, enode, name, accountPrivateKey32)
+        const tx = await bankAccounts.register(publicKey, enode, name, accountPrivateKey32, totalReserves)
         console.log(`Transaction successful: ${tx.hash}`)
         setLoginStatus(2)
-        
-        // Add addresses in the background
-        console.log(`Adding address: ${address}`)
-        await bankAccounts.addAccount(publicKey, address, 0)
     }
 
     // Login function
@@ -100,6 +96,7 @@ function BankAdmin() {
         setAccountPrivateKey32("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63")
         setBankName("Hello Bank")
         setLoginKey("0xaeba9c972504a76e1953667411f54c801da24a0896a7e305aebee241b1b45243")
+        setTotalReserves("1000000")
     }
 
     return (

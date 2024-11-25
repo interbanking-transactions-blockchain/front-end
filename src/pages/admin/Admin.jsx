@@ -4,7 +4,6 @@ import Card from '../../components/Card'
 import './Admin.scss'
 
 import TransferFunds from '../transactions/transferFunds/TransferFunds'
-import CheckAccountBalances from '../transactions/checkAccountBalances/CheckAccountBalances'
 import ExchangeTokens from '../transactions/exchangeTokens/ExchangeTokens'
 import Panel from "../panel/Panel";
 

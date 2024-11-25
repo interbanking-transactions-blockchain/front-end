@@ -12,6 +12,9 @@ class BankAccounts {
         this.provider = new ethers.JsonRpcProvider(this.rpcEndpoint);
         this.contract = new ethers.Contract(this.contractAddress, abi, this.provider);
         this.signed = false;
+        
+        // The admin account private key should go on env, to facilitate the test of the application we are hardcoding it
+        this.adminAccount = "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63"
     }
 
     getNodePublicKey(nodePrivateKey32) {
@@ -46,6 +49,15 @@ class BankAccounts {
         this.contract = this.contract.connect(this.signer);
         this.signed = true;
     }
+
+    async getEnodes() {
+        // Method to get all bank nodes enodes
+        // getAllEnodes() public view returns (string[] memory)
+        const enodes = await this.contract.getAllEnodes();
+        console.log("Getting enodes:");
+        console.log(enodes);
+        return enodes;
+    }
     
     async nodeExists(publicKey) {
         // Method to check if a bank account already exists
@@ -61,17 +73,21 @@ class BankAccounts {
         return exists
     }
 
-    async register(publicKey, enode, name, accountPrivateKey32) {
-        // addNode(string memory name, string memory publicKey, string memory enode)
+    async register(publicKey, enode, name, accountPrivateKey32, reserves) {
+        // addNode(string memory name, string memory publicKey, string memory enode, address account, uint256 reserves)
 
         // Sign the contract with the bank account's private key
         console.log("Registering bank node, signing contract");
-        this.signContract(accountPrivateKey32);
+        this.signContract(this.adminAccount);
         console.log("Contract signed");
 
-        console.log(`Registering bank: ${publicKey}, ${enode}, ${name}`)
+        console.log(`Registering bank: ${publicKey}, ${enode}, ${name}, ${accountPrivateKey32}, ${reserves}`);
 
-        const tx = await this.contract.addNode(name, publicKey, enode);
+        const tx = await this.contract.addNode(name, publicKey, enode, accountPrivateKey32, reserves);
+
+        // Add the bank enode to the list of enodes of all other banks
+        const enodes = await this.getEnodes();
+
         return tx;
     }
 
