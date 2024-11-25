@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import BankAccounts from "../../contracts/bankAccounts/BankAccounts"
+import StableCoin from "../../contracts/stableCoin/stableCoin"
 import "./Home.scss"
 
 import Admin from "../admin/Admin"
@@ -7,6 +8,7 @@ import Admin from "../admin/Admin"
 function BankAdmin() {
 
     const bankAccounts = new BankAccounts()
+    const stableCoin = new StableCoin()
 
     // 1: Not logged in, 2: Logged in, 3: Registering
     const [loginStatus, setLoginStatus] = useState(1)
@@ -16,28 +18,16 @@ function BankAdmin() {
     const [enode, setEnode] = useState("")
     const [name, setName] = useState("")
     const [address, setAddress] = useState("")
-    const [accountPrivateKey32, setAccountPrivateKey32] = useState("")
     const [totalReserves, setTotalReserves] = useState("")
 
     // Login form fields
     const [loginKey, setLoginKey] = useState("") // Private key for login
     const [bankName, setBankName] = useState("") // Bank name
 
-    // Function to remove the 0x prefix from all key fields
-    const remove0x = () => {
-        setPublicKey(publicKey.replace("0x", ""))
-        setAccountPrivateKey32(accountPrivateKey32.replace("0x", ""))
-        setLoginKey(loginKey.replace("0x", ""))
-
-        // Remove 0x from all addresses
-        setAddress(address.replace("0x", ""))
-    }
-
     // Register function
     const register = async () => {
-        remove0x()
         // Check for empty fields
-        if (publicKey === "" || enode === "" || name === "" || accountPrivateKey32 === "") {
+        if (publicKey === "" || enode === "" || name === "" || address === "" || totalReserves === "") {
             console.error("Empty fields")
             alert("Please fill all fields")
             return
@@ -51,22 +41,29 @@ function BankAdmin() {
         }
 
         // Second, check that account existance
-        const accountExists = await bankAccounts.nodeExists(accountPrivateKey32)
+        const accountExists = await bankAccounts.accountExists(address)
         if (accountExists) {
-            console.error("Bank account already exists")
-            alert("Bank account already exists. Try again with a different account private key or login.")
+            console.error("Bank account already exists on other bank")
+            alert("Bank account already exists on another bank. Try again with a different account address.")
             return
         }
 
         // Register bank account
-        const tx = await bankAccounts.register(publicKey, enode, name, accountPrivateKey32, totalReserves)
+        const tx = await bankAccounts.register(publicKey, enode, name, address, totalReserves)
+        await tx.wait()
         console.log(`Transaction successful: ${tx.hash}`)
+
+        // Mint reserves to the bank account
+        const mintTx = await stableCoin.mintBank(address, totalReserves)
+        await mintTx.wait()
+        console.log(`Mint transaction successful: ${mintTx.hash}`)
+
+        // Set login status to logged in
         setLoginStatus(2)
     }
 
     // Login function
     const login = async () => {
-        remove0x()
         // Get the node public key from the private key
         const publicKey64 = bankAccounts.getNodePublicKey(loginKey)
         console.log(`Public key: ${publicKey64}`)
@@ -93,7 +90,6 @@ function BankAdmin() {
         setEnode("enode://69e84b9c135d789b637ba454fdcf7c348b3fcee0713e248c1e3edcc652088563ae5a4fd0698f7f796b875bd8008c9197022e7c15c3680e8b7cb7ec68f8b33dfa@172.20.0.3:30303")
         setName("Hello Bank")
         setAddress("627306090abaB3A6e1400e9345bC60c78a8BEf57")
-        setAccountPrivateKey32("8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63")
         setBankName("Hello Bank")
         setLoginKey("0xaeba9c972504a76e1953667411f54c801da24a0896a7e305aebee241b1b45243")
         setTotalReserves("1000000")
@@ -168,15 +164,6 @@ function BankAdmin() {
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="text-input-short"
-                        />
-
-                        <div className="bank-account-private-key">Enter your an account private key from your bank (32 bytes)</div>
-                        <br />
-                        <input
-                            type="text"
-                            value={accountPrivateKey32}
-                            onChange={(e) => setAccountPrivateKey32(e.target.value)}
                             className="text-input-short"
                         />
 

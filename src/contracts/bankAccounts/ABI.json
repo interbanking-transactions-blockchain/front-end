@@ -2,11 +2,6 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "publicKey",
-        "type": "string"
-      },
-      {
         "internalType": "address",
         "name": "account",
         "type": "address"
@@ -27,24 +22,6 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "publicKey",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "addAccount",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
         "name": "name",
         "type": "string"
       },
@@ -57,6 +34,11 @@
         "internalType": "string",
         "name": "enode",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
       }
     ],
     "name": "addNode",
@@ -93,6 +75,11 @@
         "type": "string"
       },
       {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
         "internalType": "string",
         "name": "publicKey",
         "type": "string"
@@ -118,9 +105,9 @@
             "type": "string"
           },
           {
-            "internalType": "address[]",
-            "name": "accounts",
-            "type": "address[]"
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
           },
           {
             "internalType": "string",
@@ -172,9 +159,9 @@
             "type": "string"
           },
           {
-            "internalType": "address[]",
-            "name": "accounts",
-            "type": "address[]"
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
           },
           {
             "internalType": "string",
@@ -203,12 +190,12 @@
         "type": "string"
       }
     ],
-    "name": "getNodeAccounts",
+    "name": "getNodeAccount",
     "outputs": [
       {
-        "internalType": "address[]",
+        "internalType": "address",
         "name": "",
-        "type": "address[]"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -301,14 +288,9 @@
         "internalType": "string",
         "name": "publicKey",
         "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
       }
     ],
-    "name": "removeAccount",
+    "name": "removeNode",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -319,9 +301,14 @@
         "internalType": "string",
         "name": "publicKey",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
       }
     ],
-    "name": "removeNode",
+    "name": "updateNodeAccount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

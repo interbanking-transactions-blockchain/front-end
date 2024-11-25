@@ -66,24 +66,26 @@ class BankAccounts {
         return exists;
     }
 
-    async accountExists(accountPrivateKey32) {
+    async accountExists(account) {
         // Method to check if a bank account already exists
         // accountExists(string memory accountPrivateKey) public view returns (bool)
-        const exists = await this.contract.accountExists(accountPrivateKey32);
+
+        const addressFormatted = ethers.getAddress(account);
+        const exists = await this.contract.accountExists(addressFormatted);
         return exists
     }
 
-    async register(publicKey, enode, name, accountPrivateKey32, reserves) {
-        // addNode(string memory name, string memory publicKey, string memory enode, address account, uint256 reserves)
+    async register(publicKey, enode, name, account) {
+        // addNode(string memory name, string memory publicKey, string memory enode, address account)
 
         // Sign the contract with the bank account's private key
         console.log("Registering bank node, signing contract");
         this.signContract(this.adminAccount);
         console.log("Contract signed");
 
-        console.log(`Registering bank: ${publicKey}, ${enode}, ${name}, ${accountPrivateKey32}, ${reserves}`);
+        const addressFormatted = ethers.getAddress(account);
 
-        const tx = await this.contract.addNode(name, publicKey, enode, accountPrivateKey32, reserves);
+        const tx = await this.contract.addNode(name, publicKey, enode, addressFormatted);
 
         // Add the bank enode to the list of enodes of all other banks
         const enodes = await this.getEnodes();

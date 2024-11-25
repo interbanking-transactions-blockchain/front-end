@@ -6,7 +6,7 @@ import "./ExchangeTokens.scss"
 function ExchangeTokens(){
 
     const provider = new ethers.JsonRpcProvider("http://172.20.0.3:8545");
-    const contractAddress = "0xa50a51c09a5c451C52BB714527E1974b686D8e77"; 
+    const contractAddress = "0x4245CF4518CB2C280f5e9c6a03c90C147F80B4d9"; 
     const privateKey = "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63";
 
     const [checkAccount, setCheckAccount] = useState("");
