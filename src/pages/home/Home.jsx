@@ -91,7 +91,13 @@ function BankAdmin() {
         setPublicKey("63564513fcd3f11c1de798e601c440204b4ca008c32d9398425fd9a3a4c3f864832ca58317eb4581fed95ad79d0ada2a65385a35f350b6a3e5f85cbc1c7ab799")
         setEnode("enode://63564513fcd3f11c1de798e601c440204b4ca008c32d9398425fd9a3a4c3f864832ca58317eb4581fed95ad79d0ada2a65385a35f350b6a3e5f85cbc1c7ab799@172.20.0.7:30303")
         setName("Bank E")
-        setAddress("0xa17150d5aefedc8446f433e9877d881fe2d86413")
+        // setAddress("0xa17150d5aefedc8446f433e9877d881fe2d86413")
+
+        // Test metamask acc
+        // Pub: 0x216542EA28B7d2E7D941d33b370993bB19Fd95f7
+        // Priv: 9f462e542d5b1bf729bea8f437e48a7fb0bec382bd5f215f130fd1b58c129e69
+        setAddress("0x216542EA28B7d2E7D941d33b370993bB19Fd95f7")       
+
         setTotalReserves("1000000")
         setRpcEndpoint("http://172.20.0.7:8545")
 

@@ -227,8 +227,8 @@ class BankAccounts {
             publicKey64 = publicKey64.replace('0x', '');
             this.getAllNodes();
             console.log(`Logging in to bank account: ${publicKey64}, ${bankName}`)
-            // const exists = await this.contract.nodeExistsByName(publicKey64, bankName);
-            const exists = await this.contract.nodeExists(publicKey64);
+            const exists = await this.contract.nodeExistsByName(publicKey64, bankName);
+            //const exists = await this.contract.nodeExists(publicKey64);
             console.log(`Bank node exists: ${exists}`)
             return exists;
         } catch (error) {
